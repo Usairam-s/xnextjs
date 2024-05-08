@@ -78,7 +78,6 @@ function Input() {
     setText("");
     setImageFileUrl(null);
     setSelectedFile(null);
-    router.refresh();
   };
 
   if (!session) {

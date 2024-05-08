@@ -24,7 +24,7 @@ function Post({ post, id }) {
         <Link href={`/posts/${id}`}>
           <img src={post?.image} className="rounded-2xl mr-2" />
         </Link>
-        <Icons id={post.id} />
+        <Icons id={post.id} uid={post.uid} />
       </div>
     </div>
   );
