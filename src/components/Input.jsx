@@ -5,6 +5,12 @@ import { HiOutlinePhotograph } from "react-icons/hi";
 import { useRef } from "react";
 import { app } from "@/firebase";
 import {
+  addDoc,
+  collection,
+  serverTimestamp,
+  getFirestore,
+} from "firebase/firestore";
+import {
   getStorage,
   ref,
   uploadBytesResumable,
@@ -17,6 +23,10 @@ function Input() {
   const [imageFileUrl, setImageFileUrl] = useState();
   const [selectedFile, setSelectedFile] = useState();
   const [imageFileUploading, setImageFileUploading] = useState(false);
+  const [text, setText] = useState("");
+  const [postLoading, setPostLoading] = useState(false);
+  const db = getFirestore(app);
+
   useEffect(() => {
     if (selectedFile) {
       uploadImageToStorage();
@@ -50,6 +60,24 @@ function Input() {
       }
     );
   };
+
+  const handleSubmit = () => {
+    setPostLoading(true);
+    const docRef = addDoc(collection(db, "posts"), {
+      uid: session.user.uid,
+      name: session.user.name,
+      username: session.user.username,
+      text,
+      profileImg: session.user.image,
+      image: imageFileUrl,
+      timestamp: serverTimestamp(),
+    });
+    setPostLoading(false);
+    setText("");
+    setImageFileUrl(null);
+    setSelectedFile(null);
+  };
+
   if (!session) {
     return null;
   }
@@ -74,12 +102,15 @@ function Input() {
           className="w-full outline-none tracking-wide min-h-[50px] text-gray-700"
           placeholder="Whats happening?"
           rows="2"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
         ></textarea>
         {selectedFile && (
           <img
             src={imageFileUrl}
             alt="preview_image"
-            className="cursor-pointer max-h-[250px] w-full object-cover"
+            className={`cursor-pointer max-h-[250px] w-full object-cover,
+              ${imageFileUploading ? "animate-pulse" : ""}`}
           />
         )}
         <div className="flex items-center justify-between pt-2.5">
@@ -95,8 +126,9 @@ function Input() {
             onChange={addImageToPost}
           />
           <button
-            disabled
+            disabled={text.trim() === "" || postLoading || imageFileUploading}
             className="bg-blue-400 text-white px-4 py-1 rounded-full font-bold shadow-md hover:brightness-95 disabled:opacity-50"
+            onClick={handleSubmit}
           >
             Post
           </button>
