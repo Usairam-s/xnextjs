@@ -10,6 +10,7 @@ import {
   serverTimestamp,
   getFirestore,
 } from "firebase/firestore";
+import { useRouter } from "next/navigation";
 import {
   getStorage,
   ref,
@@ -18,10 +19,11 @@ import {
 } from "firebase/storage";
 
 function Input() {
+  const router = useRouter();
   const { data: session } = useSession();
   const imageRef = useRef(null);
-  const [imageFileUrl, setImageFileUrl] = useState();
-  const [selectedFile, setSelectedFile] = useState();
+  const [imageFileUrl, setImageFileUrl] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [imageFileUploading, setImageFileUploading] = useState(false);
   const [text, setText] = useState("");
   const [postLoading, setPostLoading] = useState(false);
@@ -76,6 +78,7 @@ function Input() {
     setText("");
     setImageFileUrl(null);
     setSelectedFile(null);
+    router.refresh();
   };
 
   if (!session) {
