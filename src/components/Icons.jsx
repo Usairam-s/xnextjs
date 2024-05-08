@@ -20,10 +20,11 @@ import {
 } from "@firebase/firestore";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
-import { modalState } from "@/atom/modelAtom";
+import { modalState, postIdState } from "@/atom/modelAtom";
 
 export default function Icons({ id, uid }) {
   const db = getFirestore(app);
+  const [postId, setPostId] = useRecoilState(postIdState);
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState([]);
   const { data: session } = useSession();
@@ -76,7 +77,14 @@ export default function Icons({ id, uid }) {
     <div className="flex items-center justify-start gap-5 p-2 text-gray-500">
       <HiOutlineChat
         className="h-8 w-8 cursor-pointer rounded-full transition-all ease-in-out duration-300 hover:bg-sky-100 hover:text-sky-500 p-2"
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          if (!session) {
+            signIn();
+          } else {
+            setOpen(!open);
+            setPostId(id);
+          }
+        }}
       />
       <div className="flex items-center">
         {isLiked ? (
